@@ -4,7 +4,7 @@ import { AuthResponse } from "../../modules/auth/authApi";
 import { authActions } from "../../modules/auth/authSlice";
 import { AppState } from "../redux";
 
-export const BASE_URL = "https://localhost:7158/api";
+export const BASE_URL = import.meta.env.VITE_API_URL ?? "https://localhost:7158/api";
 
 // Тип для кастомных опций запроса
 interface RequestOptions extends RequestInit {
@@ -80,11 +80,6 @@ export async function apiClient<T>(
 
     // Если ответ не успешный - выбрасываем ошибку
     if (!response.ok) {
-        // Для 401 показываем понятное сообщение
-        if (response.status === 401) {
-            throw new Error('Неверный email или пароль');
-        }
-
         throw new Error(
             responseData.detail ||
             responseData.title ||
