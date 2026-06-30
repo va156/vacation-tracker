@@ -45,8 +45,12 @@ public static class SwaggerExtensions
 
     public static IApplicationBuilder UseSwaggerWithUi(this IApplicationBuilder app)
     {
-        app.UseSwagger();
-        app.UseSwaggerUI();
+        var env = app.ApplicationServices.GetRequiredService<IWebHostEnvironment>();
+        if (env.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
         return app;
     }
 }

@@ -67,6 +67,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("HRAndAbove", policy => policy.RequireRole("Admin", "HRManager"));
     options.AddPolicy("ManagerAndAbove", policy => policy.RequireRole("Admin", "HRManager", "DepartmentManager"));
+    options.AddPolicy("EmployeeOnly", policy => policy.RequireRole("Admin", "HRManager", "DepartmentManager", "Employee"));
 
     // Политики на основе прав
     options.AddPolicy("CanApproveHR", policy =>
@@ -113,9 +114,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp", policy =>
     {
         policy.WithOrigins(
-                "http://localhost:3000",     
-                "http://localhost:5173",     
-                "http://localhost:5174"
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://localhost:5174",
+                "https://localhost:53830",
+                "http://localhost:53830"
             )
             .AllowAnyMethod()                 
             .AllowAnyHeader()                 
