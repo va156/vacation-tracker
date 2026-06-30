@@ -44,10 +44,10 @@ public class AuthenticationService : IAuthenticationService
             throw new InvalidOperationException("Пользователь с таким именем уже существует");
         }
 
-        var defaultRole = await _userRepository.GetRoleByCodeAsync("User"); 
+        var defaultRole = await _userRepository.GetRoleByCodeAsync("Employee");
         if (defaultRole == null)
         {
-            throw new InvalidOperationException("Роль по умолчанию не найдена в системе");
+            throw new InvalidOperationException("Роль по умолчанию не найдена в системе. Убедитесь что миграция SeedRoles была применена.");
         }
 
         // Хешируем пароль
