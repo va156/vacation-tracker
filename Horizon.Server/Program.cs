@@ -1,9 +1,12 @@
+using FluentValidation;
+using Horizon.Server.API.Filters;
 using Horizon.Server.Extensions;
 using Horizon.Server.Modules.ApprovalWorkflow;
 using Horizon.Server.Modules.Employees;
 using Horizon.Server.Modules.LeaveManagement;
 using Horizon.Server.Modules.References;
 using Horizon.Server.Modules.Shared;
+using Horizon.Server.Modules.Shared.Application.Behaviours;
 using Horizon.Server.Modules.Users;
 using Horizon.Server.Modules.Users.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -98,7 +101,13 @@ builder.Services.AddAuthorization(options =>
             context.User.IsInRole("Admin")));
 });
 
-builder.Services.AddControllers();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationPipelineBehaviour<,>));
+
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithJwt();
 
