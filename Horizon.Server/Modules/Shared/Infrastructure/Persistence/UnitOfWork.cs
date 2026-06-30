@@ -7,6 +7,7 @@ public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
     private readonly ILogger<UnitOfWork> _logger;
+    private bool _disposed;
 
     public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
     {
@@ -34,6 +35,10 @@ public class UnitOfWork : IUnitOfWork
 
     public void Dispose()
     {
-        _context.Dispose();
+        if (_disposed) return;
+        _disposed = true;
+        // DbContext is owned and disposed by the DI container (scoped lifetime).
+        // Disposing it here would cause double-dispose; we only suppress finalization.
+        GC.SuppressFinalize(this);
     }
 }
