@@ -50,10 +50,8 @@ public class AuthenticationService : IAuthenticationService
             throw new InvalidOperationException("Роль по умолчанию не найдена в системе. Убедитесь что миграция SeedRoles была применена.");
         }
 
-        // Хешируем пароль
         var passwordHash = _passwordHasher.HashPassword(request.Password);
 
-        // Создаем пользователя
         var user = new User(
             username: request.Username,
             email: request.Email,
@@ -61,18 +59,22 @@ public class AuthenticationService : IAuthenticationService
             firstName: request.FirstName,
             lastName: request.LastName,
             roleId: defaultRole.Id,
-            createdBy: 0 // Система 
+            createdBy: 0
         );
 
-        // Сохраняем пользователя
-        await _userRepository.AddAsync(user);
-        await _unitOfWork.SaveChangesAsync();
+        // Атомарно: создаём пользователя + refresh-токен
+        string accessToken = null!;
+        RefreshToken refreshToken = null!;
 
-        // Генерируем токены
-        var accessToken = _jwtTokenGenerator.GenerateAccessToken(user);
-        var refreshToken = await GenerateAndSaveRefreshToken(user.Id, ipAddress);
+        await _unitOfWork.ExecuteInTransactionAsync(async () =>
+        {
+            await _userRepository.AddAsync(user);
+            await _unitOfWork.SaveChangesAsync();
 
-        // Возвращаем ответ
+            accessToken = _jwtTokenGenerator.GenerateAccessToken(user);
+            refreshToken = await GenerateAndSaveRefreshToken(user.Id, ipAddress);
+        });
+
         return new AuthResponseDto
         {
             AccessToken = accessToken,
