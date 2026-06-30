@@ -91,6 +91,11 @@ public class AuthenticationService : IAuthenticationService
             throw new UnauthorizedAccessException("Неверный email или пароль");
         }
 
+        if (!user.IsActive)
+        {
+            throw new UnauthorizedAccessException("Учётная запись деактивирована");
+        }
+
         // Проверяем пароль
         var isValidPassword = _passwordHasher.VerifyPassword(request.Password, user.PasswordHash);
         if (!isValidPassword)
@@ -131,6 +136,11 @@ public class AuthenticationService : IAuthenticationService
         if (user == null)
         {
             throw new UnauthorizedAccessException("Пользователь не найден");
+        }
+
+        if (!user.IsActive)
+        {
+            throw new UnauthorizedAccessException("Учётная запись деактивирована");
         }
 
         // Отзываем старый токен
