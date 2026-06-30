@@ -24,6 +24,7 @@ public class UserRepository : IUserRepository
     {
         return await _context.Set<User>()
             .Include(u => u.Role)
+            .Where(u => u.IsActive)
             .ToListAsync();
     }
 
@@ -119,6 +120,7 @@ public class UserRepository : IUserRepository
     {
         var query = _context.Set<User>()
             .Include(u => u.Role)
+            .Where(u => u.IsActive)
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
