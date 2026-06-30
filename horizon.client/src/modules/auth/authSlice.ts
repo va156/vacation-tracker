@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User } from '../users/user';
 import { loginThunk } from './login/loginThunk';
+import { getCurrentUserThunk } from './getCurrentUserThunk';
 
 interface AuthState {
     user: User | null;
@@ -79,6 +80,17 @@ const authSlice = createSlice({
                 state.accessToken = null;
                 state.user = null;
                 console.log('❌ Login failed:', action.payload);
+            })
+            .addCase(getCurrentUserThunk.fulfilled, (state, action) => {
+                state.user = action.payload;
+                state.isAuthenticated = true;
+                state.isLoading = false;
+            })
+            .addCase(getCurrentUserThunk.rejected, (state) => {
+                state.user = null;
+                state.isAuthenticated = false;
+                state.accessToken = null;
+                state.isLoading = false;
             });
     },
 });
