@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import LandingPage from "../pages/LandingPage";
 import MainPage from "../pages/MainPage";
+import CreateRequestPage from "../pages/CreateRequestPage";
 import RegistrationPage from "../pages/RegistrationPage";
 import RootLayout from "./RootLayout";
 import LoginPage from "../pages/LoginPage";
@@ -53,6 +54,14 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <MainPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "/create-request",
+                element: (
+                    <ProtectedRoute>
+                        <CreateRequestPage />
                     </ProtectedRoute>
                 ),
             },
