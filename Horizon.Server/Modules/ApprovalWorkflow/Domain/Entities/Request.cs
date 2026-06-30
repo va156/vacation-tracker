@@ -1,3 +1,4 @@
+using Horizon.Server.Modules.ApprovalWorkflow.Domain.Events;
 using Horizon.Server.Modules.Employees.Domain.Entities;
 using Horizon.Server.Modules.LeaveManagement.Domain.Entities;
 using Horizon.Server.Modules.References.Domain.Entities;
@@ -86,4 +87,16 @@ public class Request : BaseEntity, IAggregateRoot
     private readonly List<ApprovalHistory> _approvalHistory = new();
     /// <summary>Gets the chronological log of approver decisions for this request.</summary>
     public virtual IReadOnlyCollection<ApprovalHistory> ApprovalHistory => _approvalHistory.AsReadOnly();
+
+    /// <summary>
+    /// Marks the request as submitted and raises a <see cref="RequestSubmittedEvent"/>
+    /// domain event so that downstream handlers (e.g. notifications, balance reservation)
+    /// can react without tight coupling.
+    /// </summary>
+    public void Submit()
+    {
+        SubmittedAt = DateTime.UtcNow;
+        CurrentStageNumber = 1;
+        AddDomainEvent(new RequestSubmittedEvent(Id, EmployeeId, RequestNumber));
+    }
 }
