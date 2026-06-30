@@ -80,7 +80,11 @@ public class CreateRequestCommandHandler : IRequestHandler<CreateRequestCommand,
             await _requestRepository.AddAsync(request);
             await _unitOfWork.SaveChangesAsync();
 
-            // 7. Attach leave periods now that we have the request Id.
+            // 7. Mark as submitted — this raises RequestSubmittedEvent which will be
+            //    dispatched by UnitOfWork on the next SaveChangesAsync call.
+            request.Submit();
+
+            // 8. Attach leave periods now that we have the request Id.
             foreach (var leaveDto in command.Leaves)
             {
                 var duration = (decimal)(leaveDto.EndDate.Date - leaveDto.StartDate.Date).TotalDays + 1;
