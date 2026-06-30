@@ -4,6 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Horizon.Server.API.Controllers;
 
+/// <summary>
+/// Exposes leave balance information. Employees may only view their own balances;
+/// HR Managers and Admins may query any employee's balances or retrieve all balances
+/// for a given year.
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
@@ -12,12 +17,18 @@ public class LeaveBalancesController : ControllerBase
     private readonly ILeaveBalanceRepository _leaveBalanceRepository;
     private readonly ILogger<LeaveBalancesController> _logger;
 
+    /// <summary>Initialises the controller with the leave balance repository and logger.</summary>
     public LeaveBalancesController(ILeaveBalanceRepository leaveBalanceRepository, ILogger<LeaveBalancesController> logger)
     {
         _leaveBalanceRepository = leaveBalanceRepository;
         _logger = logger;
     }
 
+    /// <summary>
+    /// Returns the leave balances of the currently authenticated user for the specified year
+    /// (defaults to the current calendar year).
+    /// </summary>
+    /// <param name="year">Optional calendar year; defaults to the current year.</param>
     [HttpGet("my")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetMyBalances([FromQuery] int? year)
@@ -43,6 +54,11 @@ public class LeaveBalancesController : ControllerBase
         }));
     }
 
+    /// <summary>
+    /// Returns leave balances for a specific employee. Requires the <c>HRAndAbove</c> policy.
+    /// </summary>
+    /// <param name="employeeId">Primary key of the target employee.</param>
+    /// <param name="year">Optional calendar year; defaults to the current year.</param>
     [HttpGet("employee/{employeeId:int}")]
     [Authorize(Policy = "HRAndAbove")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -64,6 +80,11 @@ public class LeaveBalancesController : ControllerBase
         }));
     }
 
+    /// <summary>
+    /// Returns leave balances for all employees for the specified year.
+    /// Requires the <c>HRAndAbove</c> policy.
+    /// </summary>
+    /// <param name="year">Optional calendar year; defaults to the current year.</param>
     [HttpGet("all")]
     [Authorize(Policy = "HRAndAbove")]
     [ProducesResponseType(StatusCodes.Status200OK)]

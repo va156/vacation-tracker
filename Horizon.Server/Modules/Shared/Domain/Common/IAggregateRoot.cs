@@ -1,3 +1,7 @@
 namespace Horizon.Server.Modules.Shared.Domain.Common;
 
-public interface IAggregateRoot {}
+/// <summary>
+/// Marker interface that identifies an entity as a DDD aggregate root.
+/// Only aggregate roots may be directly accessed via repositories.
+/// </summary>
+public interface IAggregateRoot { }

@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Horizon.Server.API.Controllers;
 
+/// <summary>
+/// Provides aggregated reporting endpoints for HR Managers and Admins.
+/// All endpoints require the <c>HRAndAbove</c> policy.
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 [Authorize(Policy = "HRAndAbove")]
@@ -14,6 +18,7 @@ public class ReportsController : ControllerBase
     private readonly ILeaveBalanceRepository _leaveBalanceRepository;
     private readonly ILogger<ReportsController> _logger;
 
+    /// <summary>Initialises the controller with the required repositories and logger.</summary>
     public ReportsController(
         IRequestRepository requestRepository,
         ILeaveBalanceRepository leaveBalanceRepository,
@@ -24,6 +29,11 @@ public class ReportsController : ControllerBase
         _logger = logger;
     }
 
+    /// <summary>
+    /// Returns a leave balance summary grouped by leave type for the specified year,
+    /// showing total entitled, used, planned and available days across all employees.
+    /// </summary>
+    /// <param name="year">Optional calendar year; defaults to the current year.</param>
     [HttpGet("leave-summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetLeaveSummary([FromQuery] int? year)
@@ -46,6 +56,10 @@ public class ReportsController : ControllerBase
         return Ok(new { Year = currentYear, Data = summary });
     }
 
+    /// <summary>
+    /// Returns a leave request count summary grouped by status,
+    /// along with the total number of requests.
+    /// </summary>
     [HttpGet("requests-summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetRequestsSummary()

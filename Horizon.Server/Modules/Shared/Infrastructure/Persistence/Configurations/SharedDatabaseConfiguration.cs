@@ -3,24 +3,37 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Horizon.Server.Modules.Shared.Infrastructure.Persistence;
 
+/// <summary>
+/// Applies global EF Core model conventions that are shared across all modules.
+/// Called from <c>AppDbContext.OnModelCreating</c> after all per-module configurations
+/// have been registered.
+/// </summary>
 public static class SharedDatabaseConfiguration
 {
+    /// <summary>
+    /// Applies all global conventions to the supplied <paramref name="modelBuilder"/>.
+    /// </summary>
+    /// <param name="modelBuilder">The EF Core model builder being configured.</param>
     public static void ApplyGlobalConfigurations(ModelBuilder modelBuilder)
     {
         ApplyDeleteBehaviorPolicy(modelBuilder);
         ApplyDecimalPrecisionConvention(modelBuilder);
     }
 
+    /// <summary>
+    /// Overrides all foreign-key delete behaviours to <see cref="DeleteBehavior.Restrict"/>
+    /// to prevent accidental cascades, with a targeted exception for
+    /// <see cref="ApprovalTemplate"/> → <see cref="ApprovalStage"/> (Cascade).
+    /// </summary>
     private static void ApplyDeleteBehaviorPolicy(ModelBuilder modelBuilder)
     {
-        // Все внешние ключи - Restrict (защита от случайного удаления)
         foreach (var foreignKey in modelBuilder.Model.GetEntityTypes()
             .SelectMany(e => e.GetForeignKeys()))
         {
             foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
         }
 
-        // Исключение: каскадное удаление этапов при удалении шаблона
+        // Allow cascade deletion of stages when an approval template is removed.
         foreach (var foreignKey in modelBuilder.Model.GetEntityTypes()
             .SelectMany(e => e.GetForeignKeys())
             .Where(fk =>
@@ -31,9 +44,12 @@ public static class SharedDatabaseConfiguration
         }
     }
 
+    /// <summary>
+    /// Configures all <c>decimal</c> and <c>decimal?</c> columns to use precision 18, scale 2
+    /// unless explicitly overridden in an entity configuration.
+    /// </summary>
     private static void ApplyDecimalPrecisionConvention(ModelBuilder modelBuilder)
     {
-        // Все decimal поля по умолчанию имеют точность 18,2
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             foreach (var property in entityType.GetProperties()

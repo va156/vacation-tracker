@@ -8,15 +8,29 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Horizon.Server.Modules.Users.Infrastructure.Services;
 
+/// <summary>
+/// HMAC-SHA256 implementation of <see cref="IJwtTokenGenerator"/>.
+/// Access tokens embed the user's identity, role code, and fine-grained permission claims.
+/// Permission sets are determined by the role at token-generation time and are not re-evaluated
+/// on each request — tokens must be refreshed to pick up role changes.
+/// </summary>
 public class JwtTokenGenerator : IJwtTokenGenerator
 {
     private readonly JwtSettings _jwtSettings;
 
+    /// <summary>Initialises the generator with the application's JWT configuration.</summary>
+    /// <param name="jwtSettings">Signing key, issuer, audience and expiry settings.</param>
     public JwtTokenGenerator(JwtSettings jwtSettings)
     {
         _jwtSettings = jwtSettings;
     }
 
+    /// <inheritdoc />
+    /// <remarks>
+    /// The following standard claims are always included:
+    /// <c>sub</c>, <c>email</c>, <c>unique_name</c>, <c>jti</c>, and a custom <c>userId</c>.
+    /// Role-specific <c>permission</c> claims are appended based on the user's role code.
+    /// </remarks>
     public string GenerateAccessToken(User user)
     {
         var claims = new List<Claim>
@@ -87,15 +101,16 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         return tokenHandler.WriteToken(token);
     }
 
+    /// <inheritdoc />
     public string GenerateRefreshToken()
     {
         var randomNumber = new byte[32];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
-
         return Convert.ToBase64String(randomNumber);
     }
 
+    /// <inheritdoc />
     public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
     {
         var tokenValidationParameters = new TokenValidationParameters
@@ -106,7 +121,7 @@ public class JwtTokenGenerator : IJwtTokenGenerator
             ValidIssuer = _jwtSettings.Issuer,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey)),
-            ValidateLifetime = false  // токен мог истечь
+            ValidateLifetime = false  // intentionally skipped — the token may have expired
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -115,7 +130,6 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         {
             var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
 
-            // Проверяем, что это действительно JWT токен
             if (securityToken is not JwtSecurityToken jwtSecurityToken ||
                 !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
                     StringComparison.InvariantCultureIgnoreCase))
