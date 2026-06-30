@@ -68,10 +68,6 @@ const authSlice = createSlice({
                 state.accessToken = action.payload.accessToken;
                 state.isAuthenticated = true;
                 state.error = null;
-                console.log('✅ Login successful, state updated:', {
-                    user: action.payload.user,
-                    token: action.payload.accessToken
-                });
             })
             .addCase(loginThunk.rejected, (state, action) => {
                 state.isLoading = false;
@@ -79,7 +75,6 @@ const authSlice = createSlice({
                 state.isAuthenticated = false;
                 state.accessToken = null;
                 state.user = null;
-                console.log('❌ Login failed:', action.payload);
             })
             .addCase(getCurrentUserThunk.fulfilled, (state, action) => {
                 state.user = action.payload;

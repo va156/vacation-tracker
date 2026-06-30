@@ -1,11 +1,12 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import { authSelectors } from "../../modules/auth/authSlice";
 import { getCurrentUserThunk } from "../../modules/auth/getCurrentUserThunk";
 import { useAppDispatch, useAppSelector } from "../redux";
 import { Box, CircularProgress } from "@mui/material";
 
-export const AuthContext = createContext<{ accessToken: string | null }>({
+export const AuthContext = createContext<{ accessToken: string | null; isInitialized: boolean }>({
     accessToken: null,
+    isInitialized: false,
 });
 
 type Props = { children: React.ReactNode };
@@ -15,32 +16,25 @@ export const AuthProvider = ({ children }: Props) => {
     const token = useAppSelector(authSelectors.selectAccessToken);
     const user = useAppSelector(authSelectors.selectUser);
     const dispatch = useAppDispatch();
+    const prevTokenRef = useRef<string | null>(undefined);
 
     useEffect(() => {
+        if (prevTokenRef.current === token) return;
+        prevTokenRef.current = token;
+
         const initAuth = async () => {
-            console.log('🔵 AuthProvider init');
-            console.log('   - Token from store:', token);
-            console.log('   - Token from localStorage:', localStorage.getItem('accessToken'));
-
-            const storedToken = localStorage.getItem('accessToken');
-
-            // Только загружаем пользователя, если есть токен
-            if (storedToken && !user) {
-                console.log('🟢 Loading user data...');
+            if (token && !user) {
                 try {
                     await dispatch(getCurrentUserThunk()).unwrap();
-                    console.log('✅ User loaded');
-                } catch (error) {
-                    console.error('❌ Failed to load user:', error);
+                } catch {
                     localStorage.removeItem('accessToken');
                 }
             }
-
             setIsInitialized(true);
         };
 
         initAuth();
-    }, [dispatch]); 
+    }, [token, dispatch, user]);
 
     if (!isInitialized) {
         return (
@@ -51,7 +45,7 @@ export const AuthProvider = ({ children }: Props) => {
     }
 
     return (
-        <AuthContext.Provider value={{ accessToken: token }}>
+        <AuthContext.Provider value={{ accessToken: token, isInitialized }}>
             {children}
         </AuthContext.Provider>
     );

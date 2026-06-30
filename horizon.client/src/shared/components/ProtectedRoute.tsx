@@ -1,5 +1,7 @@
+import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import { authSelectors } from "../../modules/auth/authSlice";
+import { AuthContext } from "./AuthProvider";
 import { useAppSelector } from "../redux";
 import { Box, CircularProgress } from "@mui/material";
 
@@ -9,11 +11,11 @@ interface Props {
 }
 
 export function ProtectedRoute({ children, requiredRoles = [] }: Props) {
-    const isLoading = useAppSelector(authSelectors.selectIsLoading);
+    const { isInitialized } = useContext(AuthContext);
     const isAuthenticated = useAppSelector(authSelectors.selectIsAuthenticated);
     const userRoles = useAppSelector(authSelectors.selectCurrentUserRoles);
 
-    if (isLoading) {
+    if (!isInitialized) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
                 <CircularProgress />
