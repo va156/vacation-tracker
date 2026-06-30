@@ -14,10 +14,21 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
-if (jwtSettings == null)
+if (jwtSettings == null || string.IsNullOrWhiteSpace(jwtSettings.SecretKey))
 {
-    jwtSettings = new JwtSettings();
+    throw new InvalidOperationException(
+        "JWT configuration is missing. Ensure 'JwtSettings' section exists in appsettings.json " +
+        "or override via environment variables: JwtSettings__SecretKey, JwtSettings__Issuer, JwtSettings__Audience.");
 }
+
+if (!builder.Environment.IsDevelopment() &&
+    jwtSettings.SecretKey.Contains("development-only"))
+{
+    throw new InvalidOperationException(
+        "Production JWT SecretKey must not use the development default. " +
+        "Set the JwtSettings__SecretKey environment variable to a strong random value.");
+}
+
 builder.Services.AddSingleton(jwtSettings);
 
 builder.Services.AddAuthentication(options =>
