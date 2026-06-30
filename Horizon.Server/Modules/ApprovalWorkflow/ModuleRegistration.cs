@@ -18,7 +18,8 @@ public static class ModuleRegistration
             cfg.RegisterServicesFromAssembly(typeof(ModuleRegistration).Assembly));
 
         services.AddScoped<ApprovalRoutingService>();
-        services.AddScoped<RequestNumberGenerator>();
+        // Singleton: SemaphoreSlim inside RequestNumberGenerator must survive across requests
+        services.AddSingleton<RequestNumberGenerator>();
 
         return services;
     }
