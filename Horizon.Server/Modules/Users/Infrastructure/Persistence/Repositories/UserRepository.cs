@@ -91,7 +91,7 @@ public class UserRepository : IUserRepository
     public async Task<IEnumerable<RefreshToken>> GetActiveRefreshTokensAsync(int userId)
     {
         return await _context.Set<RefreshToken>()
-            .Where(rt => rt.UserId == userId && rt.IsActive)
+            .Where(rt => rt.UserId == userId && !rt.IsRevoked && rt.ExpiresAt > DateTime.UtcNow)
             .ToListAsync();
     }
 
@@ -103,7 +103,7 @@ public class UserRepository : IUserRepository
     public async Task RevokeAllUserRefreshTokensAsync(int userId, string ipAddress)
     {
         var activeTokens = await _context.Set<RefreshToken>()
-            .Where(rt => rt.UserId == userId && rt.IsActive)
+            .Where(rt => rt.UserId == userId && !rt.IsRevoked && rt.ExpiresAt > DateTime.UtcNow)
             .ToListAsync();
 
         foreach (var token in activeTokens)

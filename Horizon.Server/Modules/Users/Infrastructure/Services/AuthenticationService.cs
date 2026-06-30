@@ -121,7 +121,7 @@ public class AuthenticationService : IAuthenticationService
         // Ищем refresh token в БД
         var token = await _userRepository.GetRefreshTokenAsync(refreshToken);
 
-        if (token == null || !token.IsActive)
+        if (token == null || !token.IsTokenValid)
         {
             throw new UnauthorizedAccessException("Недействительный refresh token");
         }
@@ -158,7 +158,7 @@ public class AuthenticationService : IAuthenticationService
     {
         var token = await _userRepository.GetRefreshTokenAsync(refreshToken);
 
-        if (token == null || !token.IsActive)
+        if (token == null || !token.IsTokenValid)
         {
             throw new UnauthorizedAccessException("Недействительный refresh token");
         }

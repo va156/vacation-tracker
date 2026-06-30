@@ -32,5 +32,5 @@ public class RefreshToken : BaseEntity
         RevokedByIp = revokedByIp;
     }
 
-    public bool IsActive => !IsRevoked && ExpiresAt > DateTime.UtcNow;
+    public bool IsTokenValid => !IsRevoked && ExpiresAt > DateTime.UtcNow;
 }
