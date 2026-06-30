@@ -1,4 +1,7 @@
+using Horizon.Server.Modules.ApprovalWorkflow.Application.Commands.ApproveRequest;
 using Horizon.Server.Modules.ApprovalWorkflow.Application.Commands.CreateRequest;
+using Horizon.Server.Modules.ApprovalWorkflow.Application.Commands.RejectRequest;
+using Horizon.Server.Modules.ApprovalWorkflow.Application.Commands.SendBackRequest;
 using Horizon.Server.Modules.ApprovalWorkflow.Domain.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -46,6 +49,66 @@ public class RequestsController : ControllerBase
     {
         var id = await _mediator.Send(command, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id }, new { id });
+    }
+
+    /// <summary>
+    /// Approves a leave request at the given workflow stage.
+    /// Requires the <c>CanApproveRequests</c> policy (Department Manager or HR Manager).
+    /// </summary>
+    /// <param name="id">Primary key of the request.</param>
+    /// <param name="command">Stage number, approver ID, and optional comment.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    [HttpPost("{id:int}/approve")]
+    [Authorize(Policy = "CanApproveRequests")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Approve(int id, [FromBody] ApproveRequestCommand command,
+        CancellationToken cancellationToken)
+    {
+        command.RequestId = id;
+        await _mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Rejects a leave request at the given workflow stage.
+    /// Requires the <c>CanApproveRequests</c> policy.
+    /// </summary>
+    /// <param name="id">Primary key of the request.</param>
+    /// <param name="command">Stage number, approver ID, and optional reason.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    [HttpPost("{id:int}/reject")]
+    [Authorize(Policy = "CanApproveRequests")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Reject(int id, [FromBody] RejectRequestCommand command,
+        CancellationToken cancellationToken)
+    {
+        command.RequestId = id;
+        await _mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Returns a leave request to the employee for revision.
+    /// Requires the <c>CanApproveRequests</c> policy.
+    /// </summary>
+    /// <param name="id">Primary key of the request.</param>
+    /// <param name="command">Stage number, approver ID, and revision comment.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    [HttpPost("{id:int}/send-back")]
+    [Authorize(Policy = "CanApproveRequests")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SendBack(int id, [FromBody] SendBackRequestCommand command,
+        CancellationToken cancellationToken)
+    {
+        command.RequestId = id;
+        await _mediator.Send(command, cancellationToken);
+        return NoContent();
     }
 
     /// <summary>

@@ -99,6 +99,13 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAssertion(context =>
             context.User.HasClaim(c => c.Type == "permission" && c.Value == "request:view-all") ||
             context.User.IsInRole("Admin")));
+
+    // Any role that can make approval decisions (manager, HR, or admin).
+    options.AddPolicy("CanApproveRequests", policy =>
+        policy.RequireAssertion(context =>
+            context.User.IsInRole("Admin") ||
+            context.User.IsInRole("HRManager") ||
+            context.User.IsInRole("DepartmentManager")));
 });
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
