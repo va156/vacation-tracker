@@ -1,4 +1,6 @@
+using Horizon.Server.Modules.ApprovalWorkflow.Application.Commands.CreateRequest;
 using Horizon.Server.Modules.ApprovalWorkflow.Domain.Interfaces;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,13 +17,35 @@ namespace Horizon.Server.API.Controllers;
 public class RequestsController : ControllerBase
 {
     private readonly IRequestRepository _requestRepository;
+    private readonly IMediator _mediator;
     private readonly ILogger<RequestsController> _logger;
 
-    /// <summary>Initialises the controller with the request repository and logger.</summary>
-    public RequestsController(IRequestRepository requestRepository, ILogger<RequestsController> logger)
+    /// <summary>Initialises the controller with required dependencies.</summary>
+    public RequestsController(
+        IRequestRepository requestRepository,
+        IMediator mediator,
+        ILogger<RequestsController> logger)
     {
         _requestRepository = requestRepository;
+        _mediator = mediator;
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Submits a new leave request for the authenticated employee.
+    /// </summary>
+    /// <param name="command">The request payload containing operation type, leave periods, and template ID.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>
+    /// <c>201 Created</c> with the new request ID; <c>422 Unprocessable Entity</c> if validation fails.
+    /// </returns>
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> Create([FromBody] CreateRequestCommand command, CancellationToken cancellationToken)
+    {
+        var id = await _mediator.Send(command, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id }, new { id });
     }
 
     /// <summary>
