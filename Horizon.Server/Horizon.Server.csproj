@@ -1,0 +1,96 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <SpaRoot>..\horizon.client</SpaRoot>
+    <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
+    <SpaProxyServerUrl>https://localhost:53830</SpaProxyServerUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
+    <PackageReference Include="AutoMapper" Version="16.0.0" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="MediatR" Version="14.0.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
+      <Version>10.*-*</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.3" />
+    <PackageReference Include="Microsoft.OpenApi" Version="1.6.23" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+    <PackageReference Include="Serilog" Version="4.3.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="Serilog.Sinks.PostgreSQL" Version="2.3.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.11.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\horizon.client\horizon.client.esproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Modules\ApprovalWorkflow\Application\Queries\GetEmployeeRequests\" />
+    <Folder Include="Modules\ApprovalWorkflow\Application\Queries\GetPendingRequests\" />
+    <Folder Include="Modules\ApprovalWorkflow\Application\Queries\GetRequestById\" />
+    <Folder Include="Modules\ApprovalWorkflow\Application\Queries\GetRequestsForApprover\" />
+    <Folder Include="Modules\Employees\Application\Commands\TransferEmployee\" />
+    <Folder Include="Modules\Employees\Application\Commands\TerminateEmployee\" />
+    <Folder Include="Modules\Employees\Application\Commands\UpdateEmployee\" />
+    <Folder Include="Modules\Employees\Application\Queries\GetEmployeeBalance\" />
+    <Folder Include="Modules\Employees\Application\Queries\GetEmployeeById\" />
+    <Folder Include="Modules\ApprovalWorkflow\Domain\ValueObjects\" />
+    <Folder Include="Modules\Employees\Application\Queries\GetEmployeeByNumber\" />
+    <Folder Include="Modules\Employees\Application\Queries\GetDepartmentEmployees\" />
+    <Folder Include="Modules\Employees\Application\Queries\GetEmployeeHierarchy\" />
+    <Folder Include="Modules\Employees\Domain\Events\" />
+    <Folder Include="Modules\LeaveManagement\Application\Commands\CancelLeave\" />
+    <Folder Include="Modules\LeaveManagement\Application\Commands\RequestLeave\" />
+    <Folder Include="Modules\LeaveManagement\Application\Queries\GetDepartmentBalances\" />
+    <Folder Include="Modules\LeaveManagement\Application\Queries\GetEmployeeBalance\" />
+    <Folder Include="Modules\LeaveManagement\Application\Queries\GetLeaveCalendar\" />
+    <Folder Include="Modules\References\Application\Commands\CreateLeaveType\" />
+    <Folder Include="Modules\References\Application\Commands\DeactivateLeaveType\" />
+    <Folder Include="Modules\References\Application\Commands\UpdateLeaveType\" />
+    <Folder Include="Modules\References\Application\Queries\GetActiveLeaveTypes\" />
+    <Folder Include="Modules\References\Application\Queries\GetAllLeaveTypes\" />
+    <Folder Include="Modules\References\Application\Queries\GetLeaveTypeById\" />
+    <Folder Include="Modules\References\Domain\Events\" />
+    <Folder Include="Modules\References\Domain\ValueObjects\" />
+    <Folder Include="Modules\Users\Application\Commands\LinkToEmployee\" />
+    <Folder Include="Modules\Users\Application\Commands\ChangePassword\" />
+    <Folder Include="Modules\Users\Application\Commands\UpdateUser\" />
+    <Folder Include="Modules\Users\Application\Commands\RegisterUser\" />
+    <Folder Include="Modules\Users\Application\Queries\GetUserById\" />
+    <Folder Include="Modules\Users\Application\Queries\GetUsersByRole\" />
+    <Folder Include="Modules\Users\Application\Queries\GetUserByEmail\" />
+  </ItemGroup>
+
+</Project>

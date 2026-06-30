@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="horizon.client/horizon.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="Horizon.Server/Horizon.Server.csproj" />
+</Solution>

@@ -1,4 +1,4 @@
-This is a vacation booking project, developed in test purposes.
+Horizon — vacation booking project.
 
 Диаграммы (доступ только на просмотр):
 1. Основные сущности - https://mermaid.ai/d/67bea33b-a251-4b6b-bafe-2f137653a8f9\

@@ -1,7 +1,0 @@
-<Solution>
-  <Project Path="blackboxboard.client/blackboxboard.client.esproj">
-    <Build />
-    <Deploy />
-  </Project>
-  <Project Path="BlackBoxBoard.Server/BlackBoxBoard.Server.csproj" />
-</Solution>
