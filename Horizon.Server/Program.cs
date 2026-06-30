@@ -8,7 +8,6 @@ using Horizon.Server.Modules.Users;
 using Horizon.Server.Modules.Users.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -98,29 +97,16 @@ builder.Services.AddApprovalWorkflowModule();
 builder.Services.AddUsersModule();
 builder.Services.AddReferencesModule();
 
-var isDevelopment = builder.Environment.IsDevelopment();
-if (isDevelopment)
-{
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-}
-else
-{
-    var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__PostgresConnection")
-       ?? builder.Configuration.GetConnectionString("PostgresConnection");
+var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__PostgresConnection")
+    ?? builder.Configuration.GetConnectionString("PostgresConnection");
 
-    if (string.IsNullOrEmpty(connectionString))
-    {
-        throw new InvalidOperationException("PostgreSQL connection string not configured");
-    }
-
-    builder.Services.AddDbContext<AppDbContext>(options =>
-    {
-        options.UseNpgsql(connectionString);
-        options.ConfigureWarnings(warnings =>
-            warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
-    });
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException("PostgreSQL connection string not configured. Set ConnectionStrings__PostgresConnection env var or appsettings.json.");
 }
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddCors(options =>
 {
