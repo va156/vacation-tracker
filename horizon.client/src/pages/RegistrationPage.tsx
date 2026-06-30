@@ -9,7 +9,9 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { useRegisterMutation } from "../modules/auth/authApi";
+import { authActions } from "../modules/auth/authSlice";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
 
@@ -103,6 +105,7 @@ export default function RegistrationPage() {
     const [progress, setProgress] = useState(0);
 
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [registerUser, { isLoading, error }] = useRegisterMutation();
 
     const password = watch('password', '');
@@ -160,7 +163,8 @@ export default function RegistrationPage() {
     const onSubmit: SubmitHandler<RegisterFields> = async (data) => {
         try {
             const { confirmPassword, agreeToTerms, ...registerData } = data;
-            await registerUser(registerData).unwrap();
+            const response = await registerUser(registerData).unwrap();
+            dispatch(authActions.tokenReceived({ accessToken: response.accessToken, user: response.user }));
             navigate('/dashboard');
         } catch (err) {
             console.debug('Registration error:', err);
