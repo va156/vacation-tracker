@@ -99,4 +99,49 @@ public class Request : BaseEntity, IAggregateRoot
         CurrentStageNumber = 1;
         AddDomainEvent(new RequestSubmittedEvent(Id, EmployeeId, RequestNumber));
     }
+
+    /// <summary>
+    /// Records an approval decision, advances the stage, and raises the appropriate domain event.
+    /// If <paramref name="isFinalApproval"/> is <c>true</c> the workflow is considered complete.
+    /// </summary>
+    /// <param name="newStatusId">StatusId to assign (PENDING_HR or APPROVED).</param>
+    /// <param name="nextStageNumber">Next stage to wait on, or <c>null</c> when fully approved.</param>
+    /// <param name="isFinalApproval"><c>true</c> when all stages have been approved.</param>
+    public void Approve(int newStatusId, int? nextStageNumber, bool isFinalApproval)
+    {
+        StatusId = newStatusId;
+        CurrentStageNumber = nextStageNumber;
+        if (isFinalApproval)
+        {
+            CompletedAt = DateTime.UtcNow;
+            AddDomainEvent(new RequestApprovedEvent(Id, EmployeeId, RequestNumber));
+        }
+    }
+
+    /// <summary>
+    /// Records a rejection, sets the terminal status and raises <see cref="RequestRejectedEvent"/>.
+    /// </summary>
+    /// <param name="rejectedStatusId">StatusId that represents REJECTED.</param>
+    /// <param name="reason">Optional reason supplied by the approver.</param>
+    public void Reject(int rejectedStatusId, string? reason)
+    {
+        StatusId = rejectedStatusId;
+        CurrentStageNumber = null;
+        CompletedAt = DateTime.UtcNow;
+        AddDomainEvent(new RequestRejectedEvent(Id, EmployeeId, RequestNumber, reason));
+    }
+
+    /// <summary>
+    /// Returns the request to the employee for revision, sets SENT_BACK status
+    /// and raises <see cref="RequestSentBackEvent"/>.
+    /// </summary>
+    /// <param name="sentBackStatusId">StatusId that represents SENT_BACK.</param>
+    /// <param name="comment">Comment explaining what needs to be revised.</param>
+    public void SendBack(int sentBackStatusId, string? comment)
+    {
+        StatusId = sentBackStatusId;
+        CurrentStageNumber = null;
+        CompletedAt = DateTime.UtcNow;
+        AddDomainEvent(new RequestSentBackEvent(Id, EmployeeId, RequestNumber, comment));
+    }
 }
